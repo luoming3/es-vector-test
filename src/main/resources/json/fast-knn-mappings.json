@@ -1,0 +1,11 @@
+{
+  "properties": {
+    "documentId": {
+      "type": "keyword"
+    },
+    "embeddingVector": {
+      "type": "binary",
+      "doc_values": true
+    }
+  }
+}

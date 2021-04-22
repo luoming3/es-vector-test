@@ -1,0 +1,8 @@
+path.repo: ["/tmp/es-bak"]
+
+
+# knn settings
+
+# The number of threads used for graph creation. Keeping this value low reduces the CPU impact of the KNN plugin,
+# but also reduces indexing performance.
+knn.algo_param.index_thread_qty: 8

@@ -1,0 +1,85 @@
+# https://www.elastic.co/guide/en/elasticsearch/reference/7.9/docker.html
+
+version: '2.2'
+services:
+  elasticsearchm1:
+    image: ${XDOC_IMAGE_REPOSITORY}:${XDOC_IMAGE_TAG}
+    container_name: elasticsearchm1
+    environment:
+      - node.name=${IP}-m1
+      - cluster.name=docker-cluster
+      - network.bind_host=0.0.0.0
+      - network.publish_host=${IP}
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms8g -Xmx8g -Xlog:gc+heap+coops=info"
+      - discovery.seed_hosts=${IP1}:${M1_TCP_PORT},${IP2}:${M1_TCP_PORT},${IP3}:${M1_TCP_PORT}
+      - cluster.initial_master_nodes=${IP1}-m1,${IP2}-m1,${IP3}-m1
+      - node.master=true
+      - node.data=false
+      - node.ingest=false
+      - cluster.remote.connect=false
+      - cluster.routing.allocation.disk.threshold_enabled=false  # TODO: remove this in production
+      - http.port=${M1_PORT}
+      - transport.tcp.port=${M1_TCP_PORT}
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - esmaster1:/usr/share/elasticsearch/data
+      - ${ES_BACKUP_DATA}:/tmp/es-bak
+      - ./elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - ./IKAnalyzer.cfg.xml:/usr/share/elasticsearch/config/analysis-ik/IKAnalyzer.cfg.xml
+      - ./dynamic-synonym:/usr/share/elasticsearch/plugins/dynamic-synonym
+    ports:
+      - ${M1_PORT}:${M1_PORT}
+      - ${M1_TCP_PORT}:${M1_TCP_PORT}
+    networks:
+      - esnet
+
+  elasticsearchd1:
+    image: ${XDOC_IMAGE_REPOSITORY}:${XDOC_IMAGE_TAG}
+    container_name: elasticsearchd1
+    environment:
+      - node.name=${IP}-d1
+      - cluster.name=docker-cluster
+      - network.bind_host=0.0.0.0
+      - network.publish_host=${IP}
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms26g -Xmx26g -Xlog:gc+heap+coops=info"
+      - discovery.seed_hosts=${IP1}:${M1_TCP_PORT},${IP2}:${M1_TCP_PORT},${IP3}:${M1_TCP_PORT}
+      - cluster.initial_master_nodes=${IP1}-m1,${IP2}-m1,${IP3}-m1
+      - node.master=false
+      - node.data=true
+      - node.ingest=false
+      - cluster.remote.connect=false
+      - cluster.routing.allocation.disk.threshold_enabled=false  # TODO: remove this in production
+      - http.port=${D1_PORT}
+      - transport.tcp.port=${D1_TCP_PORT} 
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - esdata1:/usr/share/elasticsearch/data
+      - ${ES_BACKUP_DATA}:/tmp/es-bak
+      - ./elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - ./IKAnalyzer.cfg.xml:/usr/share/elasticsearch/config/analysis-ik/IKAnalyzer.cfg.xml
+      - ./dynamic-synonym:/usr/share/elasticsearch/plugins/dynamic-synonym
+    ports:
+      - ${D1_PORT}:${D1_PORT}
+      - ${D1_TCP_PORT}:${D1_TCP_PORT}
+    networks:
+      - esnet
+
+volumes:
+  esmaster1:
+    name: esmaster1
+    driver: local
+  esdata1:
+    name: esdata1
+    driver: local
+
+networks:
+  esnet:
+    name: esnet

@@ -1,0 +1,209 @@
+# https://www.elastic.co/guide/en/elasticsearch/reference/7.9/docker.html
+
+version: '2.2'
+services:
+  elasticsearch:
+    image: ${XDOC_IMAGE_REPOSITORY}:${XDOC_IMAGE_TAG}
+    container_name: elastic-knn-m1
+    environment:
+      - node.name=elasticsearch
+      - cluster.name=docker-cluster
+      - network.host=0.0.0.0
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g -Xlog:gc+heap+coops=info"
+      - discovery.seed_hosts=elasticsearch
+      - cluster.initial_master_nodes=elasticsearch,elasticsearchm2,elasticsearchm3
+      - "node.master=true"
+      - "node.data=false"
+      - "node.ingest=false"
+      - "cluster.remote.connect=false"
+      - "cluster.routing.allocation.disk.threshold_enabled=false"  # TODO: remove this in production
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - esmaster1:/usr/share/elasticsearch/data
+      - esbackup:/tmp/es-bak
+      - ./elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - ./IKAnalyzer.cfg.xml:/usr/share/elasticsearch/config/analysis-ik/IKAnalyzer.cfg.xml
+      - ./dynamic-synonym:/usr/share/elasticsearch/plugins/dynamic-synonym
+    ports:
+      - 9280:9200
+      - 9380:9300
+    networks:
+      - esnet
+  elasticsearchm2:
+    image: ${XDOC_IMAGE_REPOSITORY}:${XDOC_IMAGE_TAG}
+    container_name: elastic-knn-m2
+    environment:
+      - node.name=elasticsearchm2
+      - cluster.name=docker-cluster
+      - network.host=0.0.0.0
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g -Xlog:gc+heap+coops=info"
+      - discovery.seed_hosts=elasticsearch
+      - cluster.initial_master_nodes=elasticsearch,elasticsearchm2,elasticsearchm3
+      - "node.master=true"
+      - "node.data=false"
+      - "node.ingest=false"
+      - "cluster.remote.connect=false"
+      - "cluster.routing.allocation.disk.threshold_enabled=false"  # TODO: remove this in production
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - esmaster2:/usr/share/elasticsearch/data
+      - esbackup:/tmp/es-bak
+      - ./elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - ./IKAnalyzer.cfg.xml:/usr/share/elasticsearch/config/analysis-ik/IKAnalyzer.cfg.xml
+      - ./dynamic-synonym:/usr/share/elasticsearch/plugins/dynamic-synonym
+    networks:
+      - esnet
+  elasticsearchm3:
+    image: ${XDOC_IMAGE_REPOSITORY}:${XDOC_IMAGE_TAG}
+    container_name: elastic-knn-m3
+    environment:
+      - node.name=elasticsearchm3
+      - cluster.name=docker-cluster
+      - network.host=0.0.0.0
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g -Xlog:gc+heap+coops=info"
+      - discovery.seed_hosts=elasticsearch
+      - cluster.initial_master_nodes=elasticsearch,elasticsearchm2,elasticsearchm3
+      - "node.master=true"
+      - "node.data=false"
+      - "node.ingest=false"
+      - "cluster.remote.connect=false"
+      - "cluster.routing.allocation.disk.threshold_enabled=false"  # TODO: remove this in production
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - esmaster3:/usr/share/elasticsearch/data
+      - esbackup:/tmp/es-bak
+      - ./elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - ./IKAnalyzer.cfg.xml:/usr/share/elasticsearch/config/analysis-ik/IKAnalyzer.cfg.xml
+      - ./dynamic-synonym:/usr/share/elasticsearch/plugins/dynamic-synonym
+    networks:
+      - esnet
+  elasticsearchd1:
+    image: ${XDOC_IMAGE_REPOSITORY}:${XDOC_IMAGE_TAG}
+    container_name: elastic-knn-d1
+    environment:
+      - node.name=elasticsearchd1
+      - cluster.name=docker-cluster
+      - network.host=0.0.0.0
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms16g -Xmx16g -Xlog:gc+heap+coops=info"
+      - discovery.seed_hosts=elasticsearch
+      - cluster.initial_master_nodes=elasticsearch,elasticsearchm2,elasticsearchm3
+      - "node.master=false"
+      - "node.data=true"
+      - "node.ingest=false"
+      - "cluster.remote.connect=false"
+      - "cluster.routing.allocation.disk.threshold_enabled=false"  # TODO: remove this in production
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - esdata1:/usr/share/elasticsearch/data
+      - esbackup:/tmp/es-bak
+      - ./elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - ./IKAnalyzer.cfg.xml:/usr/share/elasticsearch/config/analysis-ik/IKAnalyzer.cfg.xml
+      - ./dynamic-synonym:/usr/share/elasticsearch/plugins/dynamic-synonym
+    networks:
+      - esnet
+  elasticsearchd2:
+    image: ${XDOC_IMAGE_REPOSITORY}:${XDOC_IMAGE_TAG}
+    container_name: elastic-knn-d2
+    environment:
+      - node.name=elasticsearchd2
+      - cluster.name=docker-cluster
+      - network.host=0.0.0.0
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms16g -Xmx16g -Xlog:gc+heap+coops=info"
+      - discovery.seed_hosts=elasticsearch
+      - cluster.initial_master_nodes=elasticsearch,elasticsearchm2,elasticsearchm3
+      - "node.master=false"
+      - "node.data=true"
+      - "node.ingest=false"
+      - "cluster.remote.connect=false"
+      - "cluster.routing.allocation.disk.threshold_enabled=false"  # TODO: remove this in production
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - esdata2:/usr/share/elasticsearch/data
+      - esbackup:/tmp/es-bak
+      - ./elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - ./IKAnalyzer.cfg.xml:/usr/share/elasticsearch/config/analysis-ik/IKAnalyzer.cfg.xml
+      - ./dynamic-synonym:/usr/share/elasticsearch/plugins/dynamic-synonym
+    networks:
+      - esnet
+  elasticsearchd3:
+    image: ${XDOC_IMAGE_REPOSITORY}:${XDOC_IMAGE_TAG}
+    container_name: elastic-knn-d3
+    environment:
+      - node.name=elasticsearchd3
+      - cluster.name=docker-cluster
+      - network.host=0.0.0.0
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms16g -Xmx16g -Xlog:gc+heap+coops=info"
+      - discovery.seed_hosts=elasticsearch
+      - cluster.initial_master_nodes=elasticsearch,elasticsearchm2,elasticsearchm3
+      - "node.master=false"
+      - "node.data=true"
+      - "node.ingest=false"
+      - "cluster.remote.connect=false"
+      - "cluster.routing.allocation.disk.threshold_enabled=false"  # TODO: remove this in production
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - esdata3:/usr/share/elasticsearch/data
+      - esbackup:/tmp/es-bak
+      - ./elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - ./IKAnalyzer.cfg.xml:/usr/share/elasticsearch/config/analysis-ik/IKAnalyzer.cfg.xml
+      - ./dynamic-synonym:/usr/share/elasticsearch/plugins/dynamic-synonym
+    networks:
+      - esnet
+  kibana:
+    image: docker.elastic.co/kibana/kibana-oss:7.9.3
+    environment:
+      ELASTICSEARCH_HOSTS: http://10.127.3.215:9280
+    ports:
+      - 5608:5601
+    networks:
+      - esnet
+    depends_on:
+      - elasticsearch
+      - elasticsearchm2
+      - elasticsearchm3
+      - elasticsearchd1
+      - elasticsearchd2
+      - elasticsearchd3
+
+volumes:
+  esmaster1:
+    driver: local
+  esmaster2:
+    driver: local
+  esmaster3:
+    driver: local
+  esdata1:
+    driver: local
+  esdata2:
+    driver: local
+  esdata3:
+    driver: local
+  esbackup:
+    driver: local
+
+networks:
+  esnet:

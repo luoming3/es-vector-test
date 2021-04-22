@@ -1,0 +1,7 @@
+{
+  "index": {
+    "number_of_shards": 5,
+    "refresh_interval": "1s",
+    "elastiknn": true
+  }
+}

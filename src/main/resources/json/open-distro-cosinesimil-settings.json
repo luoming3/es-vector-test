@@ -1,0 +1,9 @@
+{
+  "index": {
+    "number_of_shards": 5,
+    "refresh_interval": "1m",
+    "number_of_replicas": 1,
+    "knn": true,
+    "knn.space_type": "cosinesimil"
+  }
+}

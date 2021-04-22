@@ -1,0 +1,20 @@
+{
+  "properties": {
+    "embeddingVector": {
+      "type": "elastiknn_dense_float_vector",
+      "elastiknn": {
+        "dims": 128,
+        "model": "permutation_lsh",
+        "similarity": "l2",
+        "k": 4,
+        "repeating": false
+      }
+    },
+    "exactVector": {
+      "type": "elastiknn_dense_float_vector",
+      "elastiknn": {
+        "dims": 128
+      }
+    }
+  }
+}

@@ -1,0 +1,50 @@
+# common settings
+
+management:
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/mydb
+    hikari:
+      username: root
+      password: root
+      driver-class-name: com.mysql.cj.jdbc.Driver
+  elasticsearch:
+    rest:
+      uris: 10.127.3.215:9280
+#  jackson:
+#    property-naming-strategy: SNAKE_CASE
+
+server:
+  port: 8801
+
+elasticsearch:
+  backup:
+    repository:
+      dir: "/tmp/es-bak/snapshot"  # repository.dir must be a sub_path of path.repo, where the path.repo is set in elasticsearch.yml
+  remote_ext:
+      dir: "/home/data/es/remote_ext"  # TODO: set the folder path for hot updating remote extra dict/stopwords
+
+---
+# development settings
+
+spring:
+  profiles: dev
+
+---
+# production settings
+
+spring:
+  profiles: prod
+
+server:
+  tomcat:
+    max-threads: 300
+    max-connections: 1000

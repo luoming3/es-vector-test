@@ -1,0 +1,8 @@
+{
+  "properties": {
+    "embeddingVector": {
+      "type": "knn_vector",
+      "dimension": 128
+    }
+  }
+}
